@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package mahjong;
+
+enum Field {
+	TON = 0;
+	NAN = 1;
+	XIA = 2;
+	PEI = 3;
+}
+
+message Hai {
+	int32 id = 1;
+	bool is_red = 2;
+	string char = 3;
+}
+
+message DiscardedHai {
+	Hai hai = 1;
+	int32 num_claim = 2;
+	bool is_after_riichi = 3;
+}
+
+message Claim {
+	repeated Hai hai = 1;
+}
+
+message GlobalContext {
+	Field field = 1;
+	int32 round = 2;
+	int32 combo = 3;
+	int32 turn = 4;
+	repeated Hai dora = 5;
+}
+
+message PlayerContext {
+	Field field = 1;
+	bool is_dealer = 2;
+	float rate = 3;
+	int32 dan = 4;
+	int32 score = 5;
+	int32 order = 6;
+}
+
+message OtherPlayer {
+	PlayerContext context = 1;
+	repeated Claim claim = 2;
+	repeated DiscardedHai discarded_hai = 3;
+}
+
+message CenterPlayer {
+	PlayerContext context = 1;
+	repeated Claim claim = 2;
+	repeated Hai hand = 3;
+	bool is_riichi = 4;
+	bool is_offline = 5;
+}
+
+message OneRound {
+	GlobalContext global_context = 1;
+	CenterPlayer center_player = 2;
+	repeated OtherPlayer other_player = 3;
+	Hai discarded_hai = 4;
+}
+
+message Game {
+	repeated OneRound one_round = 1;
+}
