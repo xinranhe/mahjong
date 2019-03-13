@@ -10,14 +10,19 @@ enum Field {
 }
 
 message Hai {
+	// id of hai. tenhou id >> 2
 	int32 id = 1;
+	// 赤宝牌
 	bool is_red = 2;
+	// debug hai char
 	string char = 3;
 }
 
 message DiscardedHai {
 	Hai hai = 1;
+	// 露副数
 	int32 num_claim = 2;
+	// 是否立直
 	bool is_after_riichi = 3;
 }
 
@@ -26,19 +31,31 @@ message Claim {
 }
 
 message GlobalContext {
+	// 东(field)二(round)局一(combo)本场 e.g. 
+	// 场风
 	Field field = 1;
+	// 局数
 	int32 round = 2;
+	// 本场
 	int32 combo = 3;
+	// 旬数: 舍牌次数
 	int32 turn = 4;
+	// 宝牌
 	repeated Hai dora = 5;
 }
 
 message PlayerContext {
+	// 客风
 	Field field = 1;
+	// 亲/子
 	bool is_dealer = 2;
+	// 天风分数
 	float rate = 3;
+	// 天风段位
 	int32 dan = 4;
+	// 当前点棒
 	int32 score = 5;
+	// 当前顺位
 	int32 order = 6;
 }
 
@@ -52,7 +69,9 @@ message CenterPlayer {
 	PlayerContext context = 1;
 	repeated Claim claim = 2;
 	repeated Hai hand = 3;
+	// 是否立直
 	bool is_riichi = 4;
+	// 是否离线
 	bool is_offline = 5;
 }
 
