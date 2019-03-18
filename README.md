@@ -10,4 +10,4 @@ ML for japanese mahjong
 ```python -m log_parser.discard_prediction_training_data --start_date 20180101 --end_date 20181231```
 
 ## Running training for discarded Hai prediction
-```python -m trainer.task```
+```python -m trainer.task --model_config_path model_config```

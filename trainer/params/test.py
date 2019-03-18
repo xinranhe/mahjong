@@ -27,7 +27,7 @@ PARAMETERS = {
     "relu_dropout": 0.1,
 
     # Training params
-    "learning_rate": 2.0,
+    "learning_rate": 0.01,
     "learning_rate_decay_rate": 1.0,
     "learning_rate_warmup_steps": 16000,
 
@@ -40,9 +40,10 @@ PARAMETERS = {
     "batch_size": 32,
 
     # Training and evaluation parameters
+    "num_gpus": 0,
     "model_dir": "/tmp/model",
-    "num_train_steps": 10000,
-    "num_eval_steps": 1000,
+    "num_train_steps": 200,
+    "num_eval_steps": 200,
 
     # Params for transformer TPU
     "allow_ffn_pad": True,

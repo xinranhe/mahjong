@@ -1,24 +1,29 @@
+import importlib
 import tensorflow as tf
 
 from trainer import dataset
 from trainer import model
-from trainer import params
 
 FLAGS = tf.app.flags.FLAGS
-tf.flags.DEFINE_string("model_dir", "", "Directory for model checkpoints.")
+tf.flags.DEFINE_string("model_config_path", "", "File name for model parameter configuration")
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
 def main(unused_argv):
+    params = importlib.import_module('trainer.params.' + FLAGS.model_config_path)
     PARAMETERS = params.PARAMETERS
-    # Overwrite model dir if specified from command line.
-    if FLAGS.model_dir:
-        PARAMETERS["model_dir"] = FLAGS.model_dir
 
     train_input_fn = dataset.input_function(PARAMETERS["training_data_patterns"], "train", PARAMETERS)
     eval_input_fn = dataset.input_function(PARAMETERS["evaluation_data_patterns"], "eval", PARAMETERS)
 
-    estimator = tf.estimator.Estimator(model_fn=model.model_fn, model_dir=PARAMETERS["model_dir"], params=PARAMETERS)
+    if PARAMETERS["num_gpus"] <= 1:
+        estimator = tf.estimator.Estimator(model_fn=model.model_fn, model_dir=PARAMETERS["model_dir"], params=PARAMETERS)
+    else:
+        devices = ["device:GPU:%d" % i for i in range(PARAMETERS["num_gpus"])]
+        distribution_strategy = tf.distribute.MirroredStrategy(devices=devices)
+        estimator = tf.estimator.Estimator(model_fn=model.model_fn, model_dir=PARAMETERS["model_dir"], params=PARAMETERS, 
+            config=tf.estimator.RunConfig(train_distribute=distribution_strategy))
+
     train_spec = tf.estimator.TrainSpec(input_fn=train_input_fn, max_steps=PARAMETERS["num_train_steps"])
 
     exporter = tf.estimator.LatestExporter('exporter', model.serving_input_receiver_fn(PARAMETERS), exports_to_keep=None)
