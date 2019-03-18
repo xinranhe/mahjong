@@ -121,8 +121,6 @@ def generate_data(folder):
     num_tfrecords = 0
     num_failed_files = 0
     for i, file in enumerate(os.listdir(folder_path)):
-        if not file.startswith("2018010100"):
-            continue
         print "processed %d files with %d failed: %d tfrecords" % (i, num_failed_files, num_tfrecords)
         file_path = "%s/%s" % (folder_path, file)
         try:
