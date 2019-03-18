@@ -20,7 +20,7 @@ def main(unused_argv):
         estimator = tf.estimator.Estimator(model_fn=model.model_fn, model_dir=PARAMETERS["model_dir"], params=PARAMETERS)
     else:
         devices = ["device:GPU:%d" % i for i in range(PARAMETERS["num_gpus"])]
-        distribution_strategy = tf.distribute.MirroredStrategy(devices=devices)
+        distribution_strategy = tf.contrib.distribute.MirroredStrategy(devices=devices)
         estimator = tf.estimator.Estimator(model_fn=model.model_fn, model_dir=PARAMETERS["model_dir"], params=PARAMETERS, 
             config=tf.estimator.RunConfig(train_distribute=distribution_strategy))
 

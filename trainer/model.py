@@ -18,7 +18,7 @@ def model_fn(features, labels, mode, params):
         return tf.estimator.EstimatorSpec(mode, predictions=predictions, export_outputs=export_outputs)
 
     # losses
-    xentropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels, logits)
+    xentropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=labels, logits=logits)
     loss = tf.reduce_mean(xentropy)
     tf.identity(loss, "cross_entropy")
 

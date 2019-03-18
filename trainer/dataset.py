@@ -50,6 +50,5 @@ def input_function(filename_patterns, is_train, parameters):
         dataset = dataset.batch(parameters["batch_size"])
         dataset = dataset.prefetch(buffer_size=parameters["prefetch_buffer_size"])
         dataset = dataset.repeat()
-        iterator = dataset.make_one_shot_iterator()
-        return iterator.get_next()
+        return dataset
     return input_fn
