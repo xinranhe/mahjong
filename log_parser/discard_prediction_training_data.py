@@ -6,7 +6,7 @@ import tensorflow as tf
 
 from log_parser.discard_prediction_parser import parse_discard_prediction
 
-NUM_THREADS = 1
+NUM_THREADS = 12
 
 MAX_SCORE_DIFF = 32000
 SCORE_DIFF_DET = 400
