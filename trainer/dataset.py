@@ -12,24 +12,28 @@ def get_parse_spec():
         "pos_seq": tf.VarLenFeature(tf.int64),
         "feature_seq": tf.VarLenFeature(tf.int64),
         "label": tf.FixedLenFeature([14], tf.float32),
+        "is_riichi": tf.FixedLenFeature([1], tf.int64),
+        "is_anyone_riichi": tf.FixedLenFeature([1], tf.int64),
     }
-    parse_spec["current_field"] = tf.FixedLenFeature([1], tf.int64)
+    parse_spec["field"] = tf.FixedLenFeature([1], tf.int64)
     parse_spec["round"] = tf.FixedLenFeature([1], tf.int64)
-    parse_spec["center_field"] = tf.FixedLenFeature([1], tf.int64)
-    parse_spec["center_oya"] = tf.FixedLenFeature([1], tf.int64)
-    for pid in xrange(3):
-        parse_spec["player%d_oya" % pid] = tf.FixedLenFeature([1], tf.int64)
-        parse_spec["player%d_field" % pid] = tf.FixedLenFeature([1], tf.int64)
-        parse_spec["player%d_riichi" % pid] = tf.FixedLenFeature([1], tf.int64)
-        parse_spec["player%d_claim" % pid] = tf.FixedLenFeature([1], tf.int64)
-        parse_spec["player%d_order" % pid] = tf.FixedLenFeature([1], tf.int64)
-        parse_spec["player%d_score" % pid] = tf.FixedLenFeature([1], tf.int64)
+    parse_spec["turn"] = tf.FixedLenFeature([1], tf.int64)
+    for name in ["center", "player0", "player1", "player2"]:
+        parse_spec["%s_oya" % name] = tf.FixedLenFeature([1], tf.int64)
+        parse_spec["%s_claim" % name] = tf.FixedLenFeature([1], tf.int64)
+        parse_spec["%s_order" % name] = tf.FixedLenFeature([1], tf.int64)
+        if "player" in name:
+            parse_spec["%s_riichi" % name] = tf.FixedLenFeature([1], tf.int64)
     return parse_spec
 
 
 def _tfrecord_parse_fn(example_proto):
     parsed_features = tf.parse_single_example(example_proto, get_parse_spec())
-    return parsed_features, parsed_features["label"]
+    labels = {
+        "label": parsed_features["label"],
+        "is_riichi": tf.cast(parsed_features["is_riichi"], dtype=tf.float32),
+    }
+    return parsed_features, labels
 
 
 def input_function(filename_patterns, is_train, parameters):

@@ -16,33 +16,33 @@ class Transformer(object):
         self.params = params
         self.encoder_stack = EncoderStack(params, train)
         self.pos_emb_layer = embedding_layer.EmbeddingSharedWeights("pos_emb", 40, 32)
-        self.hai_emb_layer = embedding_layer.EmbeddingSharedWeights("pos_emb", 71, 32)
+        self.hai_emb_layer = embedding_layer.EmbeddingSharedWeights("pos_emb", 79, 32)
 
     def __call__(self, features):
         initializer = tf.variance_scaling_initializer(
             self.params["initializer_gain"], mode="fan_avg", distribution="uniform")
         
         with tf.variable_scope("Transformer", initializer=initializer):
-            # FNN to process feature embedding
-            feature_emb = input_ops.get_feature_seq_embedding(features)
-            for layer_size in self.params['feature_hidden_size']:
-              feature_emb = tf.layers.dense(feature_emb, layer_size, activation=tf.nn.relu)
-            feature_emb = tf.layers.dense(feature_emb, self.params["hidden_size"], activation=None)
-
             pos_emb = self.pos_emb_layer(tf.sparse.to_dense(features["pos_seq"]))
             hai_emb = self.hai_emb_layer(tf.sparse.to_dense(features["hai_seq"]))
-            encoder_inputs = hai_emb + feature_emb + pos_emb
+            encoder_inputs = hai_emb + pos_emb
             if self.train:
                 encoder_inputs = tf.nn.dropout(encoder_inputs, 1 - self.params["layer_postprocess_dropout"])
 
             dense_hai_seq = tf.sparse.to_dense(features["hai_seq"])
-            attention_bias = utils.get_padding_bias(dense_hai_seq)
             inputs_padding = utils.get_padding(dense_hai_seq)
+            # use context features as bias for attention
+            attention_bias = utils.get_padding_bias(dense_hai_seq)
+            attention_bias = attention_bias + input_ops.get_feature_seq_bias(features, self.params)
+
             encoder_outputs = self.encoder_stack(encoder_inputs, attention_bias, inputs_padding)
 
-            logits = tf.layers.dense(encoder_outputs[:, 1:15, :], 1)
-            logits = tf.squeeze(logits)
-        return logits
+            discard_logits = tf.layers.dense(encoder_outputs[:, 1:15, :], 1)
+            discard_logits = tf.squeeze(discard_logits)
+
+            riichi_logits = tf.layers.dense(encoder_outputs[:, 0, :], 1)
+            riichi_logits = tf.squeeze(riichi_logits)
+        return discard_logits, riichi_logits 
 
 
 class LayerNormalization(tf.layers.Layer):

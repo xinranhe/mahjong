@@ -1,20 +1,20 @@
 PARAMETERS = {
     # Input params
     "training_data_patterns": [
-        "data/tfrecord/201801*",
-        "data/tfrecord/201802*",
-        "data/tfrecord/201803*",
-        "data/tfrecord/201804*",
-        "data/tfrecord/201805*",
-        "data/tfrecord/201806*",
-        "data/tfrecord/201807*",
-        "data/tfrecord/201808*",
-        "data/tfrecord/201809*",
-        "data/tfrecord/201810*",
-        "data/tfrecord/201811*"
+        "data/tfrecord_v2/201801*",
+        "data/tfrecord_v2/201802*",
+        "data/tfrecord_v2/201803*",
+        "data/tfrecord_v2/201804*",
+        "data/tfrecord_v2/201805*",
+        "data/tfrecord_v2/201806*",
+        "data/tfrecord_v2/201807*",
+        "data/tfrecord_v2/201808*",
+        "data/tfrecord_v2/201809*",
+        "data/tfrecord_v2/201810*",
+        "data/tfrecord_v2/201811*"
     ],
     "evaluation_data_patterns":[
-        "data/tfrecord/201812*"
+        "data/tfrecord_v2/201812*"
     ],
     # Training data loader properties
     "buffer_size": 10000,
@@ -26,10 +26,12 @@ PARAMETERS = {
     # Model params
     "initializer_gain": 1.0,  # Used in trainable variable initialization.
     "hidden_size": 32, # Model dimension in the hidden layers, input embedding dimension
-    "num_hidden_layers": 3, # Number of layers in the encoder stacks.
-    "num_heads": 4,
-    "filter_size": 256,
-    "feature_hidden_size": [32,32],
+    "num_hidden_layers": 6, # Number of layers in the encoder stacks.
+    "num_heads": 8,
+    "filter_size": 512,
+    "feature_hidden_size": [32,16],
+    "riichi_loss_weight": 0.5,
+    "after_riichi_instance_multiplier": 1.0,
 
     # Dropout values (only used when training)
     "layer_postprocess_dropout": 0.1,
@@ -51,7 +53,7 @@ PARAMETERS = {
 
     # Training and evaluation parameters
     "num_gpus": 1,
-    "model_dir": "/tmp/model",
+    "model_dir": "training/v2_20180320",
     "num_train_steps": 2000000,
     "num_eval_steps": 1000,
 

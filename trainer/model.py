@@ -8,8 +8,13 @@ def model_fn(features, labels, mode, params):
   """Defines how to train, evaluate and predict from the transformer model."""
   with tf.variable_scope("model"):
     model = transformer.Transformer(mode == tf.estimator.ModeKeys.TRAIN, params)
-    logits = model(features)
-    predictions = {"prediction": logits}
+    discard_logits, riichi_logits = model(features)
+    riichi_prob = tf.sigmoid(riichi_logits)
+
+    predictions = {
+        "discard_logits": discard_logits,
+        "riichi_prob": riichi_prob
+    }
     
     if mode == tf.estimator.ModeKeys.PREDICT:
         export_outputs = {
@@ -18,16 +23,41 @@ def model_fn(features, labels, mode, params):
         return tf.estimator.EstimatorSpec(mode, predictions=predictions, export_outputs=export_outputs)
 
     # losses
-    xentropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=labels, logits=logits)
-    loss = tf.reduce_mean(xentropy)
-    tf.identity(loss, "cross_entropy")
+    # use weight to empahsize on after riichi for defend
+    is_after_riichi = tf.cast(features["is_anyone_riichi"], dtype=tf.float32)
+    after_riichi_ratio = tf.reduce_mean(is_after_riichi)
+
+    weight = 1 + is_after_riichi * params["after_riichi_instance_multiplier"]
+    discard_xentropy = tf.nn.softmax_cross_entropy_with_logits_v2(labels=labels["label"], logits=discard_logits)
+    discard_xentropy = discard_xentropy * weight
+    discard_loss = tf.reduce_mean(discard_xentropy)
+
+    riichi_xentropy = tf.nn.sigmoid_cross_entropy_with_logits(labels=labels["is_riichi"], logits=riichi_logits)
+    riichi_loss = tf.reduce_mean(riichi_xentropy)
+
+    loss = params["riichi_loss_weight"] * riichi_loss + discard_loss
+
+    tf.identity(discard_loss, "discard_cross_entropy")
+    tf.identity(riichi_loss, "riichi_cross_entropy")
+    tf.identity(loss, "total_loss")
 
     # evaluation
     if mode == tf.estimator.ModeKeys.EVAL:
-        accuracy = metrics.compute_accuracy(labels, logits)
+        discard_accuracy = metrics.compute_accuracy(labels["label"], discard_logits)
+        before_riichi_accuracy = discard_accuracy * (1.0 - is_after_riichi)
+        after_riichi_accuracy = discard_accuracy * is_after_riichi
         eval_metrics = {
-            'ACCURACY': tf.metrics.mean(accuracy),
-            "XENTROPY": tf.metrics.mean(loss)
+            "RIICHI_AUROC": tf.metrics.auc(labels["is_riichi"], riichi_prob, curve='ROC', summation_method='careful_interpolation'),
+            "RIICHI_AUPRC": tf.metrics.auc(labels["is_riichi"], riichi_prob, curve='PR', summation_method='careful_interpolation'),
+            'DISCARD_ACCURACY': tf.metrics.mean(discard_accuracy),
+            'BEFORE_RIICHI_DISCARD_ACCURACY': tf.metrics.mean(before_riichi_accuracy),
+            'AFTER_RIICHI_DISCARD_ACCURACY': tf.metrics.mean(after_riichi_accuracy),
+            "AFTER_RIICHI_RATIO": tf.metrics.mean(after_riichi_ratio),
+            "DISCARD_XENTROPY": tf.metrics.mean(discard_loss),
+            "DISCARD_XENTROPY": tf.metrics.mean(discard_loss),
+            "DISCARD_XENTROPY": tf.metrics.mean(discard_loss),
+            "RIICHI_XENTROPY": tf.metrics.mean(riichi_loss),
+            "TOTAL_LOSS": tf.metrics.mean(loss)
         }
         return tf.estimator.EstimatorSpec(mode, loss=loss, predictions=predictions, eval_metric_ops=eval_metrics)
     else:

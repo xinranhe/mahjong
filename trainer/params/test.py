@@ -1,10 +1,10 @@
 PARAMETERS = {
     # Input params
     "training_data_patterns": [
-        "data/tfrecord/20180101.gz"
+        "data/tfrecord_v2/20180101.gz"
     ],
     "evaluation_data_patterns":[
-        "data/tfrecord/20180101.gz"
+        "data/tfrecord_v2/20180101.gz"
     ],
     # Training data loader properties
     "buffer_size": 10000,
@@ -20,6 +20,8 @@ PARAMETERS = {
     "num_heads": 4,
     "filter_size": 256,
     "feature_hidden_size": [32,32],
+    "riichi_loss_weight": 0.5,
+    "after_riichi_instance_multiplier": 1.0,
 
     # Dropout values (only used when training)
     "layer_postprocess_dropout": 0.1,
@@ -42,8 +44,8 @@ PARAMETERS = {
     # Training and evaluation parameters
     "num_gpus": 0,
     "model_dir": "/tmp/model",
-    "num_train_steps": 200,
-    "num_eval_steps": 200,
+    "num_train_steps": 1000,
+    "num_eval_steps": 1000,
 
     # Params for transformer TPU
     "allow_ffn_pad": True,
