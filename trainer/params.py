@@ -1,10 +1,20 @@
 PARAMETERS = {
     # Input params
     "training_data_patterns": [
-        "data/tfrecord/20180101.gz"
+        "data/tfrecord/201801*",
+        "data/tfrecord/201802*",
+        "data/tfrecord/201803*",
+        "data/tfrecord/201804*",
+        "data/tfrecord/201805*",
+        "data/tfrecord/201806*",
+        "data/tfrecord/201807*",
+        "data/tfrecord/201808*",
+        "data/tfrecord/201809*",
+        "data/tfrecord/201810*",
+        "data/tfrecord/201811*",
     ],
     "evaluation_data_patterns":[
-        "data/tfrecord/20180101.gz"
+        "data/tfrecord/201812*"
     ],
     # Training data loader properties
     "buffer_size": 10000,
@@ -16,9 +26,9 @@ PARAMETERS = {
     # Model params
     "initializer_gain": 1.0,  # Used in trainable variable initialization.
     "hidden_size": 32, # Model dimension in the hidden layers, input embedding dimension
-    "num_hidden_layers": 3, # Number of layers in the encoder stacks.
-    "num_heads": 4,
-    "filter_size": 256,
+    "num_hidden_layers": 6, # Number of layers in the encoder stacks.
+    "num_heads": 8,
+    "filter_size": 512,
     "feature_hidden_size": [32,32],
 
     # Dropout values (only used when training)
@@ -27,7 +37,7 @@ PARAMETERS = {
     "relu_dropout": 0.1,
 
     # Training params
-    "learning_rate": 2.0,
+    "learning_rate": 0.01,
     "learning_rate_decay_rate": 1.0,
     "learning_rate_warmup_steps": 16000,
 
@@ -37,11 +47,11 @@ PARAMETERS = {
     "optimizer_adam_epsilon": 1e-09,
 
     # batch size
-    "batch_size": 32,
+    "batch_size": 256,
 
     # Training and evaluation parameters
-    "model_dir": "/tmp/model",
-    "num_train_steps": 10000,
+    "model_dir": "/home/xinran/GitProject/mahjong/training/20190319",
+    "num_train_steps": 1000000,
     "num_eval_steps": 1000,
 
     # Params for transformer TPU
