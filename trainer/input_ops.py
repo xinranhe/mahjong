@@ -46,6 +46,7 @@ def get_context_features(parsed_features):
 
 def get_feature_seq_bias(features, params):
     context_features = get_context_features(features)
+    init_context_features = context_features
     initializer = tf.variance_scaling_initializer(
             params["initializer_gain"], mode="fan_avg", distribution="uniform")
     with tf.variable_scope("Context_features", initializer=initializer):
@@ -62,4 +63,4 @@ def get_feature_seq_bias(features, params):
     feature_seq_bias = tf.nn.embedding_lookup(context_features, feature_seq)
     feature_seq_bias.set_shape([None, None])
     feature_seq_bias = tf.expand_dims(tf.expand_dims(feature_seq_bias, axis=1), axis=1)
-    return feature_seq_bias
+    return feature_seq_bias, init_context_features

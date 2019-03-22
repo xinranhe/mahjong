@@ -9,7 +9,8 @@ def model_fn(features, labels, mode, params):
   with tf.variable_scope("model"):
     model = transformer.Transformer(mode == tf.estimator.ModeKeys.TRAIN, params)
     discard_logits, riichi_logits = model(features)
-    riichi_prob = tf.sigmoid(riichi_logits)
+    discard_logits_id = tf.identity(discard_logits, name="discard_logits")
+    riichi_prob = tf.sigmoid(riichi_logits, name="riichi_prob")
 
     predictions = {
         "discard_logits": discard_logits,

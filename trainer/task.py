@@ -5,7 +5,7 @@ from trainer import dataset
 from trainer import model
 
 FLAGS = tf.app.flags.FLAGS
-tf.flags.DEFINE_string("model_config_path", "", "File name for model parameter configuration")
+tf.flags.DEFINE_string("model_config_path", "test", "File name for model parameter configuration")
 
 tf.logging.set_verbosity(tf.logging.INFO)
 

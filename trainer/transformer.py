@@ -16,7 +16,7 @@ class Transformer(object):
         self.params = params
         self.encoder_stack = EncoderStack(params, train)
         self.pos_emb_layer = embedding_layer.EmbeddingSharedWeights("pos_emb", 40, 32)
-        self.hai_emb_layer = embedding_layer.EmbeddingSharedWeights("pos_emb", 79, 32)
+        self.hai_emb_layer = embedding_layer.EmbeddingSharedWeights("hai_emb", 79, 32)
 
     def __call__(self, features):
         initializer = tf.variance_scaling_initializer(
@@ -32,15 +32,19 @@ class Transformer(object):
             dense_hai_seq = tf.sparse.to_dense(features["hai_seq"])
             inputs_padding = utils.get_padding(dense_hai_seq)
             # use context features as bias for attention
+            feature_seq_bias, context_features = input_ops.get_feature_seq_bias(features, self.params)
             attention_bias = utils.get_padding_bias(dense_hai_seq)
-            attention_bias = attention_bias + input_ops.get_feature_seq_bias(features, self.params)
+            attention_bias = attention_bias + feature_seq_bias
 
             encoder_outputs = self.encoder_stack(encoder_inputs, attention_bias, inputs_padding)
 
             discard_logits = tf.layers.dense(encoder_outputs[:, 1:15, :], 1)
             discard_logits = tf.squeeze(discard_logits)
 
-            riichi_logits = tf.layers.dense(encoder_outputs[:, 0, :], 1)
+            riichi_logits = tf.concat([encoder_outputs[:, 0, :], context_features], axis=1)
+            for layer_size in self.params['feature_hidden_size']:
+              riichi_logits = tf.layers.dense(riichi_logits, layer_size, activation=tf.nn.relu)
+            riichi_logits = tf.layers.dense(riichi_logits, 1, activation=None)
             riichi_logits = tf.squeeze(riichi_logits)
         return discard_logits, riichi_logits 
 

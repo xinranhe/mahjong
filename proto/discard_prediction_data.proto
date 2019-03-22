@@ -20,7 +20,7 @@ message Hai {
 
 message DiscardedHai {
 	Hai hai = 1;
-	// 露副数
+	// 副露数
 	int32 num_claim = 2;
 	// 是否立直
 	bool is_after_riichi = 3;
