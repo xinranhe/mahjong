@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+var hai_names = [
+	"1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m",
+	"1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p",
+	"1s", "2s", "3s", "4s", "5s", "6s", "7s", "8s", "9s",
+	"don", "nan", "xia", "pei", "bai", "zhong", "fa"
+];
+var list = [];
+function add(id) {
+	list.push(id);
+	list.sort(function(a, b){return a-b});
+	draw();
+	if (list.length == 14) {
+		loadDoc()
+	}		
+};
+
+function del(id) {
+	var index = list.indexOf(id);
+	if (index > -1) {
+  		list.splice(index, 1);
+	}
+	draw();
+	if (list.length == 13) {
+		loadDoc()
+	}	
+};
+
+function exchange(in_id, out_id) {
+	if (in_id != -1) {
+		add(in_id);
+	}
+	if (out_id != -1)
+	{
+		del(out_id);
+	}
+	draw();
+	loadDoc();
+};
+
+function draw() {
+	var i;
+	s = "牌数:" + String(list.length) + "<br>";
+	for (i = 0; i < list.length; i++) { 
+  		s += '<img src="data/' + hai_names[list[i]] + '.png" width="50" height="80" onclick="del(' + list[i] + ')">';
+	}
+	document.getElementById("hand").innerHTML = s
+	document.getElementById("result").innerHTML = "";
+}
+
+function cclear() {
+	list.length = 0;
+	draw();
+}
+
+function loadDoc() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+     document.getElementById("result").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "http://localhost:8000/compute?hais=" + list.join(), true);
+  xhttp.send();
+}
+
+
+</script>
+<title>Page Title</title>
+</head>
+<body>
+<button style="height:100px;width:200px" onclick="loadDoc()">牌效计算</button>
+<button style="height:100px;width:200px" onclick="cclear()">清空</button>
+<hr>
+<div id="candidate">
+	<img src="data/1m.png" width="50" height="80" onclick="add(0)">
+	<img src="data/2m.png" width="50" height="80" onclick="add(1)">
+	<img src="data/3m.png" width="50" height="80" onclick="add(2)">
+	<img src="data/4m.png" width="50" height="80" onclick="add(3)">
+	<img src="data/5m.png" width="50" height="80" onclick="add(4)">
+	<img src="data/6m.png" width="50" height="80" onclick="add(5)">
+	<img src="data/7m.png" width="50" height="80" onclick="add(6)">
+	<img src="data/8m.png" width="50" height="80" onclick="add(7)">
+	<img src="data/9m.png" width="50" height="80" onclick="add(8)">	
+	<br>
+	<img src="data/1p.png" width="50" height="80" onclick="add(9)">
+	<img src="data/2p.png" width="50" height="80" onclick="add(10)">
+	<img src="data/3p.png" width="50" height="80" onclick="add(11)">
+	<img src="data/4p.png" width="50" height="80" onclick="add(12)">
+	<img src="data/5p.png" width="50" height="80" onclick="add(13)">
+	<img src="data/6p.png" width="50" height="80" onclick="add(14)">
+	<img src="data/7p.png" width="50" height="80" onclick="add(15)">
+	<img src="data/8p.png" width="50" height="80" onclick="add(16)">
+	<img src="data/9p.png" width="50" height="80" onclick="add(17)">		
+	<br>
+	<img src="data/1s.png" width="50" height="80" onclick="add(18)">
+	<img src="data/2s.png" width="50" height="80" onclick="add(19)">
+	<img src="data/3s.png" width="50" height="80" onclick="add(20)">
+	<img src="data/4s.png" width="50" height="80" onclick="add(21)">
+	<img src="data/5s.png" width="50" height="80" onclick="add(22)">
+	<img src="data/6s.png" width="50" height="80" onclick="add(23)">
+	<img src="data/7s.png" width="50" height="80" onclick="add(24)">
+	<img src="data/8s.png" width="50" height="80" onclick="add(25)">
+	<img src="data/9s.png" width="50" height="80" onclick="add(26)">		
+	<br>
+	<img src="data/don.png" width="50" height="80" onclick="add(27)">
+	<img src="data/nan.png" width="50" height="80" onclick="add(28)">
+	<img src="data/xia.png" width="50" height="80" onclick="add(29)">
+	<img src="data/pei.png" width="50" height="80" onclick="add(30)">
+	<img src="data/bai.png" width="50" height="80" onclick="add(31)">
+	<img src="data/zhong.png" width="50" height="80" onclick="add(32)">
+	<img src="data/fa.png" width="50" height="80" onclick="add(33)">	
+</div>
+<hr>
+<div id="hand"></div>
+<hr>
+<div id="result"></div>
+</body>
+</html>
