@@ -10,17 +10,18 @@ class Transformer(object):
     """
     Transformer model for japanese mahjong discarded hai prediction.
     """
-    def __init__(self, train, params):
+    def __init__(self, train, params, name):
         self.train = train
         self.params = params
         self.encoder_stack = EncoderStack(params, train)
         self.hai_emb_layer = embedding_layer.EmbeddingSharedWeights("hai_emb", 34, 16)
+        self.name = name
 
     def __call__(self, input):
         initializer = tf.variance_scaling_initializer(
             self.params["initializer_gain"], mode="fan_avg", distribution="uniform")
         
-        with tf.variable_scope("Transformer", initializer=initializer):
+        with tf.variable_scope("Transformer-" + self.name, initializer=initializer):
             encoder_inputs = self.hai_emb_layer(input)
             if self.train:
                 encoder_inputs = tf.nn.dropout(encoder_inputs, 1 - self.params["layer_postprocess_dropout"])
@@ -29,9 +30,8 @@ class Transformer(object):
             attention_bias = tf.expand_dims(tf.expand_dims(inputs_padding, axis=1), axis=1)
 
             encoder_outputs = self.encoder_stack(encoder_inputs, attention_bias, inputs_padding)
-
-            value = tf.reduce_sum(tf.layers.dense(encoder_outputs, 1), axis=1)
-        return value
+            output = tf.squeeze(tf.layers.dense(encoder_outputs, 1))
+        return output
 
 
 class LayerNormalization(tf.layers.Layer):
